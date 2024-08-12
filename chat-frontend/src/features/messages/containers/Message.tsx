@@ -1,16 +1,17 @@
 import MessageForm from "../components/MessageForm";
 import {useAppDispatch, useAppSelector} from "../../../app/hooks";
-import {selectMessageCreating, selectMessages} from "../store/messagesSlice";
+import {selectMessageCreating, selectMessages, selectMessagesFetching} from "../store/messagesSlice";
 import {createMessage, fetchMessages} from "../store/messagesThunks";
 import {MessageMutation} from "../../../types";
 import {useEffect} from "react";
 import MessageItem from "../components/MessageItem";
-import {Grid} from "@mui/material";
+import {CircularProgress,Grid} from "@mui/material";
 
 const Message = () => {
     const dispatch = useAppDispatch();
     const isCreating = useAppSelector(selectMessageCreating)
     const messages = useAppSelector(selectMessages);
+    const isFetching = useAppSelector(selectMessagesFetching);
 
     useEffect(() => {
         dispatch(fetchMessages());
@@ -37,6 +38,7 @@ const Message = () => {
                       justifyContent: 'center',
                       mb: '200px' }}
             >
+                {isFetching && <Grid item> <CircularProgress/> </Grid>}
                 {messages.map(message => (
                     <MessageItem
                         key={message.id}
