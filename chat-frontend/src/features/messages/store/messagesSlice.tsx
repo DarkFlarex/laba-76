@@ -1,12 +1,17 @@
 import {createSlice} from "@reduxjs/toolkit";
-import {createMessage} from "./messagesThunks";
+import {createMessage, fetchMessages} from "./messagesThunks";
+import {Message} from "../../../types";
 
 
 export interface MessagesState{
+    items:Message[];
+    itemsFetching:boolean;
     isCreating:boolean;
 }
 
 const initialState: MessagesState = {
+    items:[],
+    itemsFetching:false,
     isCreating: false,
 }
 
@@ -15,6 +20,15 @@ export const messagesSlice = createSlice({
     initialState,
     reducers:{},
     extraReducers:(builder)=>{
+        builder.addCase(fetchMessages.pending,(state)=>{
+            state.itemsFetching = true;
+        }).addCase(fetchMessages.fulfilled,(state,{payload:messages})=>{
+            state.itemsFetching = false;
+            state.items = messages;
+        }).addCase(fetchMessages.rejected,(state)=>{
+            state.itemsFetching = false;
+        });
+
         builder.addCase(createMessage.pending,(state)=>{
             state.isCreating = true;
         }).addCase(createMessage.fulfilled,(state)=>{
@@ -24,6 +38,8 @@ export const messagesSlice = createSlice({
         });
     },
     selectors:{
+        selectMessages:(state)=> state.items,
+        selectMessagesFetching:(state)=> state.itemsFetching,
         selectMessageCreating:(state)=> state.isCreating,
     }
 })
@@ -31,5 +47,7 @@ export const messagesSlice = createSlice({
 export const messagesReducer = messagesSlice.reducer;
 
 export const{
+    selectMessages,
+    selectMessagesFetching,
     selectMessageCreating,
 } = messagesSlice.selectors;
